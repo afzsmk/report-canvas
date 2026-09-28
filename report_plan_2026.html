@@ -1,52 +1,51 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Анализ перспективного плана — 18.09.2026</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-body{font-family:Inter,Segoe UI,Arial,sans-serif;background:#07101d;color:#e5edf7}.card{background:rgba(15,27,45,.9);border:1px solid rgba(148,163,184,.15);border-radius:18px}.muted{color:#94a3b8}.tab.active{background:#0ea5e9;color:#fff}.scroll{overflow:auto;max-height:610px}table{border-collapse:collapse;width:100%;font-size:12px}th{position:sticky;top:0;background:#14243a;z-index:1}th,td{padding:8px 10px;border-bottom:1px solid #26374e;white-space:nowrap;text-align:left}tr:hover td{background:#102239}.kpi{background:linear-gradient(135deg,#0f1b2d,#0b1524);border:1px solid #20334d;border-radius:14px}.badge{font-size:11px;padding:3px 7px;border-radius:999px;background:#10263c;color:#7dd3fc}
-</style></head>
-<body class="min-h-screen">
-<header class="sticky top-0 z-50 bg-[#07101d]/95 border-b border-slate-800 backdrop-blur"><div class="max-w-7xl mx-auto px-4 py-5 flex justify-between gap-4 flex-wrap"><div><div class="text-xs uppercase tracking-[.2em] text-sky-400 font-bold">ЗСМК · главный технолог</div><h1 class="text-2xl font-black">Анализ перспективного плана</h1><p class="muted text-sm">по состоянию на 18.09.2026</p></div><a href="index.html" class="px-4 py-2 rounded-xl bg-slate-800 text-sm">← Все отчёты</a></div></header>
-<main class="max-w-7xl mx-auto px-4 py-6 space-y-5">
-<section class="grid grid-cols-2 md:grid-cols-5 gap-3">
-<div class="kpi p-4"><div class="muted text-xs">Статус XLSX</div><b id="xlsxStatus">Загрузка…</b></div>
-<div class="kpi p-4"><div class="muted text-xs">Листов</div><b id="sheetCount" class="text-2xl">—</b></div>
-<div class="kpi p-4"><div class="muted text-xs">Строк данных</div><b id="rowCount" class="text-2xl">—</b></div>
-<div class="kpi p-4"><div class="muted text-xs">Числовых показателей</div><b id="metricCount" class="text-2xl">—</b></div>
-<div class="kpi p-4"><div class="muted text-xs">PDF</div><b id="pdfStatus">Загрузка…</b></div>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#07101d;color:#e5edf7}
+header{position:sticky;top:0;z-index:10;background:rgba(7,16,29,.96);border-bottom:1px solid #1e293b;backdrop-filter:blur(12px)}
+.wrap{max-width:1280px;margin:auto;padding:20px}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:#38bdf8;font-weight:800}
+h1{font-size:26px;margin:7px 0 3px}.muted{color:#94a3b8;font-size:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}
+a,.btn{color:#e5edf7;text-decoration:none;background:#17263a;border:1px solid #26374e;border-radius:10px;padding:10px 14px;font-size:13px}
+.card{background:rgba(15,27,45,.9);border:1px solid rgba(148,163,184,.15);border-radius:18px;padding:18px}
+.viewer{margin-top:22px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.controls{display:flex;align-items:center;gap:8px}.btn{cursor:pointer}.btn:disabled{opacity:.4;cursor:default}
+#pages{display:flex;flex-direction:column;gap:18px}.page{background:#0b1626;border:1px solid #20334d;border-radius:16px;padding:12px}
+.pagehead{display:flex;justify-content:space-between;margin:0 3px 10px;color:#94a3b8;font-size:12px}.page canvas{display:block;width:100%;height:auto;background:white;border-radius:10px}
+.status{color:#7dd3fc}.error{color:#fca5a5}
+</style>
+</head>
+<body>
+<header><div class="wrap top"><div><div class="kicker">ЗСМК · главный технолог</div><h1>Анализ перспективного плана</h1><div class="muted">по состоянию на 18.09.2026</div></div><a href="index.html">← Все отчёты</a></div></header>
+<main class="wrap">
+<section class="card viewer">
+<div class="toolbar">
+<div><b>Исходный документ</b><div id="status" class="muted">Загрузка PDF…</div></div>
+<div class="controls"><button id="prev" class="btn">← Назад</button><span id="counter" class="muted">— / —</span><button id="next" class="btn">Вперёд →</button><a id="open" target="_blank" href="Анализ%20перспективного%20плана%20по%20состоянию%20на%2018.09.2026.pdf">Открыть PDF ↗</a></div>
+</div>
+<div id="pages"></div>
 </section>
-<div class="flex gap-2 flex-wrap"><button class="tab active px-4 py-2 rounded-xl text-sm" data-t="dashboard">Дашборд</button><button class="tab px-4 py-2 rounded-xl bg-slate-800 text-sm" data-t="sheets">Листы и данные</button><button class="tab px-4 py-2 rounded-xl bg-slate-800 text-sm" data-t="monthly">Динамика</button><button class="tab px-4 py-2 rounded-xl bg-slate-800 text-sm" data-t="pdf">Исходный PDF</button></div>
-
-<section id="dashboard" class="space-y-5">
-<div class="card p-6"><div class="flex justify-between gap-3 flex-wrap"><div><h2 class="text-lg font-bold">Сводка перспективного плана</h2><p class="muted text-sm mt-1">Показатели рассчитываются автоматически из всех листов книги. Фильтры позволяют перейти от общего плана к конкретному листу.</p></div><select id="dashSheet" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2"></select></div><div id="dashKpis" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5"></div></div>
-<div class="grid lg:grid-cols-2 gap-5"><div class="card p-5"><h3 id="chartTitleA" class="font-bold mb-3">Основные показатели</h3><canvas id="chartA"></canvas></div><div class="card p-5"><h3 id="chartTitleB" class="font-bold mb-3">Структура данных</h3><canvas id="chartB"></canvas></div></div>
-<div class="card p-5"><div class="flex justify-between items-center gap-3"><h3 class="font-bold">Что содержит книга</h3><span id="sheetSummary" class="badge"></span></div><div id="sheetCards" class="grid md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4"></div></div>
-</section>
-
-<section id="sheets" class="hidden"><div class="card p-5"><div class="flex flex-wrap justify-between gap-3"><div><h2 class="font-bold">Производственная программа</h2><p id="meta" class="muted text-sm"></p></div><div class="flex gap-2"><select id="sheet" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2"></select><input id="q" placeholder="Поиск по строкам…" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2"></div></div><div id="table" class="scroll mt-4"></div></div></section>
-
-<section id="monthly" class="hidden space-y-5"><div class="card p-5"><h2 class="font-bold">Автоматически найденная динамика</h2><p class="muted text-sm mt-1">Отчёт ищет в заголовках признаки месяцев/дат и строит ряды по найденным числовым колонкам.</p><div class="grid lg:grid-cols-2 gap-5 mt-5"><div><canvas id="monthA"></canvas></div><div><canvas id="monthB"></canvas></div></div></div><div class="card p-5"><h3 class="font-bold">Числовые показатели по листам</h3><div id="metricsTable" class="scroll mt-4"></div></div></section>
-
-<section id="pdf" class="hidden"><div class="card p-5"><div class="flex flex-wrap justify-between gap-3"><div><h2 class="font-bold">Исходный PDF</h2><p class="muted text-sm">Оригинал остаётся источником пояснений и исходных формулировок.</p></div><div class="flex gap-2"><input id="pdfq" placeholder="Поиск по PDF…" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2"><a id="pdfLink" target="_blank" class="px-3 py-2 rounded-xl bg-slate-800 text-sm">Открыть PDF ↗</a></div></div><div id="pdfText" class="muted text-sm max-h-64 overflow-auto mt-4 whitespace-pre-wrap"></div><div id="pages" class="space-y-4 mt-5"></div></div></section>
 </main>
 <script>
-const XLSX_FILE='Производственная_программа_План_18.09.2026_2026-09-22.xlsx',PDF_FILE='Анализ перспективного плана по состоянию на 18.09.2026.pdf';
-let wb,charts=[],monthCharts=[],pdfTexts=[];const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');['dashboard','sheets','monthly','pdf'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==b.dataset.t))});
-const toNum=v=>{if(typeof v==='number')return Number.isFinite(v)?v:null;let s=String(v??'').trim().replace(/\s/g,'').replace(',','.').replace(/%$/,'');if(!s)return null;let n=Number(s);return Number.isFinite(n)?n:null};
-function rows(si){return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[si]],{header:1,defval:''})}
-function headerIndex(a){let h=a[0]||[];while(h.length&&String(h[h.length-1]).trim()==='')h.pop();return h}
-function profile(si){let a=rows(si),h=headerIndex(a),body=a.slice(1),metrics=[];for(let c=0;c<h.length;c++){let vals=body.map(r=>toNum(r[c])).filter(v=>v!==null), ratio=body.length?vals.length/body.length:0;if(vals.length>=2&&ratio>=.35)metrics.push({c,n:String(h[c]||'Показатель'),vals,sum:vals.reduce((x,y)=>x+y,0),avg:vals.reduce((x,y)=>x+y,0)/vals.length,min:Math.min(...vals),max:Math.max(...vals)})}return {a,h,body,metrics,rows:Math.max(0,body.length)}}
-function fmt(n){return Number(n||0).toLocaleString('ru-RU',{maximumFractionDigits:2})}
-function populate(){let opts=wb.SheetNames.map((s,i)=>'<option value="'+i+'">'+esc(s)+'</option>').join('');sheet.innerHTML=opts;dashSheet.innerHTML=opts;sheet.onchange=render;dashSheet.onchange=()=>{renderDash();makeCharts()};q.oninput=render;renderDash();render();renderMonthly();document.getElementById('sheetCount').textContent=wb.SheetNames.length;document.getElementById('sheetSummary').textContent=wb.SheetNames.length+' листов';document.getElementById('rowCount').textContent=wb.SheetNames.reduce((n,_,i)=>n+profile(i).rows,0).toLocaleString('ru-RU');document.getElementById('metricCount').textContent=wb.SheetNames.reduce((n,_,i)=>n+profile(i).metrics.length,0)}
-function renderDash(){let p=profile(+dashSheet.value),m=p.metrics.slice(0,4);dashKpis.innerHTML=m.map(x=>'<div class="bg-slate-950/60 rounded-xl p-4"><div class="muted text-xs truncate">'+esc(x.n)+'</div><div class="text-xl font-black mt-2">'+fmt(x.sum)+'</div><div class="muted text-xs">среднее '+fmt(x.avg)+'</div></div>').join('')||'<span class="muted">На этом листе числовые показатели не распознаны.</span>';sheetCards.innerHTML=wb.SheetNames.map((s,i)=>{let x=profile(i);return '<button onclick="dashSheet.value='+i+';renderDash();makeCharts()" class="text-left bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:border-sky-500"><div class="font-semibold truncate">'+esc(s)+'</div><div class="muted text-xs mt-2">'+x.rows+' строк · '+x.metrics.length+' показателей</div></button>'}).join('')}
-function render(){let p=profile(+sheet.value),term=(q.value||'').toLowerCase(),r=term?p.a.filter(x=>x.some(v=>String(v).toLowerCase().includes(term))):p.a;meta.textContent=wb.SheetNames[+sheet.value]+' · '+p.rows+' строк · '+p.metrics.length+' числовых показателей';let n=p.h.length;let h='<table><thead><tr>'+Array.from({length:n},(_,i)=>'<th>'+esc(p.h[i]||('Колонка '+(i+1)))+'</th>').join('')+'</tr></thead><tbody>';r.slice(1,501).forEach(x=>{h+='<tr>'+Array.from({length:n},(_,i)=>'<td>'+esc(x[i])+'</td>').join('')+'</tr>'});table.innerHTML=h+'</tbody></table>'+(r.length>501?'<div class="muted text-xs p-3">Показаны первые 500 строк после фильтра.</div>':'')}
-function makeCharts(){charts.forEach(c=>c.destroy());let p=profile(+dashSheet.value),labels=p.body.slice(0,12).map((r,i)=>String(r[0]||i+1)),m=p.metrics.slice(0,2);['chartA','chartB'].forEach((id,i)=>{let x=m[i],el=document.getElementById(id);if(!x){el.parentElement.innerHTML='<div class="muted">Недостаточно числовых данных для графика.</div>';return}document.getElementById(i?'chartTitleB':'chartTitleA').textContent=x.n;charts.push(new Chart(el,{type:i?'line':'bar',data:{labels,datasets:[{label:x.n,data:labels.map((_,j)=>toNum(p.body[j]?.[x.c])||0),tension:.3}]},options:{responsive:true,plugins:{legend:{labels:{color:'#cbd5e1'}}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}}))})}
-function findMonthCols(p){return p.h.map((h,c)=>({h:String(h||''),c})).filter(x=>/(янв|фев|мар|апр|май|июн|июл|авг|сен|окт|ноя|дек|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\b20\d\d\b|\d{1,2}[./-]\d{1,2})/i.test(x.h))}
-function renderMonthly(){monthCharts.forEach(c=>c.destroy());let all=[];wb.SheetNames.forEach((s,si)=>{let p=profile(si),mc=findMonthCols(p);mc.forEach(x=>{let vals=p.body.map(r=>toNum(r[x.c])).filter(v=>v!==null);if(vals.length)all.push({sheet:s,h:x.h,sum:vals.reduce((a,b)=>a+b,0)})})});if(!all.length){document.getElementById('metricsTable').innerHTML='<div class="muted">В заголовках не обнаружены явные признаки месяцев/дат. Используйте вкладку «Листы и данные».</div>';return}let labels=all.slice(0,20).map(x=>x.h),data=all.slice(0,20).map(x=>x.sum);monthCharts.push(new Chart(document.getElementById('monthA'),{type:'bar',data:{labels,datasets:[{label:'Сумма',data}]},options:{plugins:{legend:{labels:{color:'#cbd5e1'}}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'}}}}}));let bySheet={};all.forEach(x=>bySheet[x.sheet]=(bySheet[x.sheet]||0)+x.sum);monthCharts.push(new Chart(document.getElementById('monthB'),{type:'doughnut',data:{labels:Object.keys(bySheet),datasets:[{data:Object.values(bySheet)}]},options:{plugins:{legend:{labels:{color:'#cbd5e1'}}}}}));metricsTable.innerHTML='<table><thead><tr><th>Лист</th><th>Колонка</th><th>Сумма</th></tr></thead><tbody>'+all.map(x=>'<tr><td>'+esc(x.sheet)+'</td><td>'+esc(x.h)+'</td><td>'+fmt(x.sum)+'</td></tr>').join('')+'</tbody></table>'}
-async function loadXlsx(){try{let a=await fetch(encodeURI(XLSX_FILE));if(!a.ok)throw Error(a.status);wb=XLSX.read(await a.arrayBuffer(),{type:'array',cellDates:true});xlsxStatus.textContent='✓ загружено';populate();makeCharts()}catch(e){xlsxStatus.textContent='⚠ ошибка загрузки';console.error(e)}}
-async function loadPdf(){pdfLink.href=encodeURI(PDF_FILE);try{let p=await pdfjsLib.getDocument(PDF_FILE).promise;pdfStatus.textContent='✓ '+p.numPages+' стр.';for(let i=1;i<=p.numPages;i++){let pg=await p.getPage(i),v=pg.getViewport({scale:1.05}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;c.className='w-full bg-white rounded-xl';await pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;let t=(await pg.getTextContent()).items.map(x=>x.str).join(' ');pdfTexts.push({i,t});let b=document.createElement('div');b.className='card p-3';b.innerHTML='<div class="muted text-xs mb-2">Страница '+i+'</div>';b.appendChild(c);pages.appendChild(b)}pdfText.textContent=pdfTexts.map(x=>'Стр. '+x.i+': '+x.t).join('\n\n');pdfq.oninput=()=>{let z=pdfq.value.toLowerCase();pdfText.textContent=pdfTexts.filter(x=>!z||x.t.toLowerCase().includes(z)).map(x=>'Стр. '+x.i+': '+x.t).join('\n\n')}}catch(e){pdfStatus.textContent='⚠ ошибка';console.error(e)}}loadXlsx();loadPdf();
-</script></body></html>
+const FILE='Анализ перспективного плана по состоянию на 18.09.2026.pdf';
+let pdf=null,current=1;
+const pages=document.getElementById('pages'),status=document.getElementById('status'),counter=document.getElementById('counter');
+async function renderPage(n){
+ if(!pdf)return; current=Math.max(1,Math.min(n,pdf.numPages)); pages.innerHTML='';
+ const page=await pdf.getPage(current),vp=page.getViewport({scale:1.45});
+ const box=document.createElement('div');box.className='page';
+ const head=document.createElement('div');head.className='pagehead';head.innerHTML='<span>Исходный PDF</span><span>Страница '+current+' из '+pdf.numPages+'</span>';
+ const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+ box.append(head,canvas);pages.appendChild(box);
+ await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+ counter.textContent=current+' / '+pdf.numPages;
+ document.getElementById('prev').disabled=current===1;document.getElementById('next').disabled=current===pdf.numPages;
+}
+async function init(){try{pdf=await pdfjsLib.getDocument(encodeURI(FILE)).promise;status.innerHTML='<span class="status">✓ '+pdf.numPages+' страниц</span>';await renderPage(1)}catch(e){status.innerHTML='<span class="error">Не удалось загрузить PDF</span>';console.error(e)}}
+document.getElementById('prev').onclick=()=>renderPage(current-1);document.getElementById('next').onclick=()=>renderPage(current+1);init();
+</script>
+</body></html>
